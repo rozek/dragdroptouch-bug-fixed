@@ -4,7 +4,7 @@ Polyfill that enables HTML5 drag drop support on mobile (touch) devices.
 
 **Important!**
 
-**This repository is basically a "copy" of the original [dragdroptouch](https://github.com/Bernardo-Castilho/dragdroptouch) (refactored for TypeScript and) including a few bug fixes, as the original does not seem to be maintained any longer. As a consequence, however, this repository may become obsolete should the original package still be fixed.**
+**This repository is basically a series of refactorings of the original [dragdroptouch](https://github.com/Bernardo-Castilho/dragdroptouch) in order to make it TypeScript-compatible and fix it bugs more easily (some of them *have* already been fixed).**
 
 **The resulating NPM package has been registered with the name "dragdroptouch-bug-fixed"**
 
