@@ -5,13 +5,19 @@ import { terser } from 'rollup-plugin-terser'
 
 export default {
   input: './DragDropTouch.ts',
-  output: {
-    dir: './',
-    format: 'umd',  // builds for both Node.js and Browser
-    name:'DragDropTouch', // required for UMD modules
-    noConflict:true,
-    sourcemap: true,
-    exports: 'default',
-  },
+  output: [
+    {
+      dir:       './',
+      format:    'umd', // builds for both Node.js and Browser
+      name:      'DragDropTouch', // required for UMD modules
+      noConflict:true,
+      sourcemap: true,
+      exports:   'default',
+    },{
+      file:     './DragDropTouch.esm.js',
+      format:   'esm',
+      sourcemap:true,
+    }
+  ],
   plugins: [typescript()/*, terser()*/],
 };
