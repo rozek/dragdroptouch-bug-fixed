@@ -127,22 +127,27 @@
                         e.preventDefault();
                         return;
                     }
+                    var lastPointOnPage = this._getPoint(this._lastTouch, true);
+                    var curPointOnPage = this._getPoint(e, true);
+                    this._lastMovementX = curPointOnPage.x - lastPointOnPage.x;
+                    this._lastMovementY = curPointOnPage.y - lastPointOnPage.y;
+                    var Extras = { movementX: this._lastMovementX, movementY: this._lastMovementY };
                     if (this._dragSource && (this._img == null) && this._shouldStartDragging(e)) {
-                        this._dispatchEvent(e, 'dragstart', this._dragSource);
+                        this._dispatchEvent(e, 'dragstart', this._dragSource, Extras);
                         this._createImage(e);
-                        this._dispatchEvent(e, 'dragenter', target);
+                        this._dispatchEvent(e, 'dragenter', target, Extras);
                     }
                     if (this._img != null) {
                         this._lastTouch = e;
                         e.preventDefault();
-                        this._dispatchEvent(e, 'drag', this._dragSource);
+                        this._dispatchEvent(e, 'drag', this._dragSource, Extras);
                         if (target != this._lastTarget) {
-                            this._dispatchEvent(this._lastTouch, 'dragleave', this._lastTarget);
-                            this._dispatchEvent(e, 'dragenter', target);
+                            this._dispatchEvent(this._lastTouch, 'dragleave', this._lastTarget, Extras);
+                            this._dispatchEvent(e, 'dragenter', target, Extras);
                             this._lastTarget = target;
                         }
                         this._moveImage(e);
-                        this._isDropZone = this._dispatchEvent(e, 'dragover', target);
+                        this._isDropZone = this._dispatchEvent(e, 'dragover', target, Extras);
                     }
                 }
             };
@@ -159,10 +164,11 @@
                     }
                     this._destroyImage();
                     if (this._dragSource) {
+                        var Extras = { movementX: this._lastMovementX, movementY: this._lastMovementY };
                         if (e.type.indexOf('cancel') < 0 && this._isDropZone) {
-                            this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget);
+                            this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget, Extras);
                         }
-                        this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource);
+                        this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource, Extras);
                         this._reset();
                     }
                 }
@@ -197,10 +203,13 @@
                 this._isDragEnabled = false;
                 this._isDropZone = false;
                 this._dataTransfer = new DataTransfer();
+                this._lastMovementX = 0;
+                this._lastMovementY = 0;
                 clearInterval(this._pressHoldInterval);
             };
             DragDropTouch.prototype._getPoint = function (e, page) {
-                if ((e != null) && (e.touches != null)) {
+                if ((e != null) && (e.touches != null) &&
+                    (e.touches.length > 0)) {
                     var Touch_1 = e.touches[0];
                     return { x: page ? Touch_1.pageX : Touch_1.clientX, y: page ? Touch_1.pageY : Touch_1.clientY };
                 }
@@ -289,7 +298,7 @@
                     this._copyStyle(src.children[i], dst.children[i]);
                 }
             };
-            DragDropTouch.prototype._dispatchEvent = function (e /* poor TypeScript trick */, type, target) {
+            DragDropTouch.prototype._dispatchEvent = function (e /* poor TypeScript trick */, type, target, Extras) {
                 if ((e != null) && (target != null)) {
                     var evt = document.createEvent('Event'); // poor trick to satisfy compiler
                     var t = (e['touches'] != null) ? e['touches'][0] : e;
@@ -299,6 +308,10 @@
                     this._copyProps(evt, e, DragDropTouchSingleton._kbdProps);
                     this._copyProps(evt, t, DragDropTouchSingleton._ptProps);
                     evt['dataTransfer'] = this._dataTransfer;
+                    if (Extras != null) {
+                        evt['movementX'] = Extras.movementX;
+                        evt['movementY'] = Extras.movementY;
+                    }
                     target.dispatchEvent(evt);
                     return evt.defaultPrevented;
                 }
