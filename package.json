@@ -1,11 +1,11 @@
 {
   "name": "dragdroptouch-bug-fixed",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Polyfill that enables HTML5 drag drop support on mobile (touch) devices",
-  "main":   "./DragDropTouch.js",
+  "main": "./DragDropTouch.js",
   "module": "./DragDropTouch.esm.js",
   "exports": {
-    "require":"./DragDropTouch.js",
+    "require": "./DragDropTouch.js",
     "import": "./DragDropTouch.esm.js"
   },
   "scripts": {
