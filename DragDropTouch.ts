@@ -183,26 +183,32 @@ let DragDropTouch:any
           return
         }
 
+        let lastPointOnPage = this._getPoint(this._lastTouch,true)
+        let curPointOnPage  = this._getPoint(e,true)
+          this._lastMovementX = curPointOnPage.x - lastPointOnPage.x
+          this._lastMovementY = curPointOnPage.y - lastPointOnPage.y
+        let Extras = { movementX:this._lastMovementX, movementY:this._lastMovementY }
+
         if (this._dragSource && (this._img == null) && this._shouldStartDragging(e)) {
-          this._dispatchEvent(e, 'dragstart', this._dragSource)
+          this._dispatchEvent(e, 'dragstart', this._dragSource, Extras)
           this._createImage(e)
-          this._dispatchEvent(e, 'dragenter', target)
+          this._dispatchEvent(e, 'dragenter', target, Extras)
         }
 
         if (this._img != null) {
           this._lastTouch = e
           e.preventDefault()
 
-          this._dispatchEvent(e, 'drag', this._dragSource)
+          this._dispatchEvent(e, 'drag', this._dragSource, Extras)
 
           if (target != this._lastTarget) {
-            this._dispatchEvent(this._lastTouch, 'dragleave', this._lastTarget)
-            this._dispatchEvent(e, 'dragenter', target)
+            this._dispatchEvent(this._lastTouch, 'dragleave', this._lastTarget, Extras)
+            this._dispatchEvent(e, 'dragenter', target, Extras)
             this._lastTarget = target
           }
 
           this._moveImage(e)
-          this._isDropZone = this._dispatchEvent(e, 'dragover', target)
+          this._isDropZone = this._dispatchEvent(e, 'dragover', target, Extras)
         }
       }
     }
@@ -222,10 +228,12 @@ let DragDropTouch:any
 
         this._destroyImage()
         if (this._dragSource) {
+          let Extras = { movementX:this._lastMovementX, movementY:this._lastMovementY }
+
           if (e.type.indexOf('cancel') < 0 && this._isDropZone) {
-            this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget)
+            this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget, Extras)
           }
-          this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource)
+          this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource, Extras)
           this._reset()
         }
       }
@@ -269,17 +277,22 @@ let DragDropTouch:any
     DragDropTouch.prototype._reset = function ():void {
       this._destroyImage()
       this._dragSource = null
-      this._lastTouch = null
+      this._lastTouch  = null
       this._lastTarget = null
       this._ptDown = null
       this._isDragEnabled = false
       this._isDropZone = false
       this._dataTransfer = new DataTransfer()
+      this._lastMovementX = 0
+      this._lastMovementY = 0
       clearInterval(this._pressHoldInterval)
     }
 
     DragDropTouch.prototype._getPoint = function (e:MouseEvent|TouchEvent, page:boolean):any {
-      if ((e != null) && ((e as TouchEvent).touches != null)) {
+      if (
+        (e != null) && ((e as TouchEvent).touches != null) &&
+        ((e as TouchEvent).touches.length > 0)
+      ) {
         let Touch = (e as TouchEvent).touches[0]
         return { x: page ? Touch.pageX : Touch.clientX, y: page ? Touch.pageY : Touch.clientY }
       } else {
@@ -382,7 +395,8 @@ let DragDropTouch:any
     }
 
     DragDropTouch.prototype._dispatchEvent = function (
-      e:any /* poor TypeScript trick */, type:string, target:Element
+      e:any /* poor TypeScript trick */, type:string, target:Element,
+      Extras?:{ movementX:number, movementY:number }
     ):boolean {
       if ((e != null) && (target != null)) {
         let evt = document.createEvent('Event') as any // poor trick to satisfy compiler
@@ -393,6 +407,11 @@ let DragDropTouch:any
           this._copyProps(evt, e, DragDropTouchSingleton._kbdProps)
           this._copyProps(evt, t, DragDropTouchSingleton._ptProps)
           evt['dataTransfer'] = this._dataTransfer
+
+          if (Extras != null) {
+            evt['movementX'] = Extras.movementX
+            evt['movementY'] = Extras.movementY
+          }
         target.dispatchEvent(evt)
         return evt.defaultPrevented
       }
@@ -434,3 +453,4 @@ let DragDropTouch:any
 })(DragDropTouch || (DragDropTouch = {}))
 
 export default DragDropTouch
+
