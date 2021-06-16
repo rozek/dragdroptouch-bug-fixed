@@ -54,7 +54,7 @@ let DragDropTouch:any
     DataTransfer.prototype.setDragImage = function (
       img:Element, offsetX:number,offsetY:number
     ) {
-      let ddt = DragDropTouch._instance
+      let ddt = DragDropTouchSingleton._instance
       ddt._imgCustom = img
       ddt._imgOffset = { x:offsetX, y:offsetY }
     }
@@ -72,6 +72,9 @@ let DragDropTouch:any
     _touchstart:(e:Event) => any,
     _touchmove:(e:Event) => any,
     _touchend:(e:Event) => any,
+
+    _imgCustom:Element,
+    _imgOffset: { x:number, y:number },
 
     _THRESHOLD:number,
     _OPACITY:number,
