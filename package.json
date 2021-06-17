@@ -17,11 +17,11 @@
     "url": "git+https://github.com/rozek/dragdroptouch-bug-fixed.git"
   },
   "keywords": [
-    "html5",
-    "drag",
-    "drop",
+    "html5-drag",
+    "polyfill",
+    "touch-events",
     "mobile",
-    "touch"
+    "mouse-emulation"
   ],
   "author": "Andreas Rozek <a.rozek@gmx.de> (https://www.rozek.de/)",
   "contributors": [
